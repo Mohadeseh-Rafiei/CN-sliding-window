@@ -198,12 +198,14 @@ int main(int argc, char* argv[]) {
     while(true) {
         cout << "while" <<endl;
         char * recvBuf = (char *) &paket;
-        if (recvfrom(serverSocket, recvBuf, sizeof(paket), 0, (struct sockaddr*) &serverAddr, &client_t.client_slen) >= 0) {
-            cout << "--------------------------------"<< endl;
-            cout << "data rec"<< endl;
-            cout << lastDataReceived << endl;
-            lastDataReceived += 1;
-            client_buffer.push_back(recvBuf);
+        if (abs(lastDataReceived - lastDataSent) <= 10) {
+            if (recvfrom(serverSocket, recvBuf, sizeof(paket), 0, (struct sockaddr*) &serverAddr, &client_t.client_slen) >= 0) {
+                cout << "--------------------------------"<< endl;
+                cout << "data rec"<< endl;
+                cout << lastDataReceived << endl;
+                lastDataReceived += 1;
+                client_buffer.push_back(recvBuf);
+            }
         }
         char* acksegment = (char *) &ack;
         if (recvfrom(clientSocket, acksegment, sizeof(ack), 0, (struct sockaddr*) &clientAddress, &client_t.server_slen) >= 0) {
