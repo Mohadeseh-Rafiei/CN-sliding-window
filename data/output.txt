@@ -1,0 +1,42 @@
+The U.S. Army Research Laboratory has developed a dataset of faces to train facial recognition that works in darkness.
+
+Facial recognition has already come a long way since U.S. Special
+Operations Forces used the technology to help identify Osama bin Laden
+after killing the Al-Qaeda leader in his Pakistani hideout in 2011.
+
+The Army Research Laboratory Visible and Thermal Face
+dataset contains 500,000 images from 395 people. it is one of the
+largest and most comprehensive datasets that includes matching
+images of people’s faces taken under both ordinary visible-light
+conditions and with heat-sensing thermal cameras in low-light
+conditions.
+
+Early benchmark testing with the dataset showed that
+facial recognition algorithms struggled to either identify key facial features
+or identify unique individual faces from thermal camera
+images—especially when the normal details visible in faces are reduced to
+blobby heat patterns.
+
+The algorithms also struggled with “off-pose” images in which the
+person’s face is angled 20 degrees or more away from center
+The algorithms also struggled with “off-pose” images in which the
+person’s face is angled 20 degrees or more away from center
+And they had problems matching the visible-light images of individual faces withtheir thermal imagery counterparts when the person was wearing glasses in
+one of the images.
+
+The dataset development was sponsored by the Defense Forensics
+& Biometrics Agency, which manages a U.S. military database filled with
+images of faces, fingerprints, DNA, and other biometric information from
+millions of individuals in countries such as Afghanistan and Iraq,
+according to documents obtained by OneZero. The agency has also issued
+contracts to several U.S. companies to develop facial recognition
+technology that works in the dark—efforts that might benefit from the new
+training dataset.
+
+The Army Research Laboratory team and its university
+research partners collected the images for their dataset from adult
+volunteers under a careful informed consent process with oversight from
+an Institutional Review Board that holds the responsibility for monitoring
+biomedical research. That contrasts with the more controversial practices
+of research groups or companies such as Clearview AI that have scraped
+social media websites and the public internet to collect images of faces.
