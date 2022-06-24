@@ -144,8 +144,6 @@ int main(int argc, char* argv[]) {
 	finalSegment = CreateSegment(0, 0, 0);
 	SOH(finalSegment) = 0x2;
 	Checksum(finalSegment) = generateChecksumPaket(finalSegment);
-	cout <<(generateChecksumPaket(finalSegment) == Checksum(finalSegment)) << endl;
-	cout << NextSequenceNumber(finalACK) << endl;
 	while (NextSequenceNumber(finalACK) == 0 || generateChecksumACK(finalACK) != Checksum(finalACK)) {
 		char* segment = (char *) &finalSegment;
 		sendto(udpSocket, segment, sizeof(finalSegment), 0, (struct sockaddr *) &clientAddress, slen);

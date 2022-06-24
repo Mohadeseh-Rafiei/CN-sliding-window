@@ -106,9 +106,10 @@ int main(int argc, char* argv[]) {
 
 		char *sendBuf = (char *) &ack;
         if (count % 10 != 2) {
+            cout << count <<endl;
             sendto(udpSocket, sendBuf, sizeof(ack), 0, (struct sockaddr*) &serverAddr, slen);
+            cout<< "ack se" <<endl;
         }
-        cout<< "ack se" <<endl;
 		if (counterBuffer == bufferSize) {
 			counterBufferOffset += bufferSize;
 			counterBuffer = 0;
