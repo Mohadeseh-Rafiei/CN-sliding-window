@@ -26,4 +26,4 @@ routfile: router.o utility.o
 	$(CC) -pthread -o routfile router.o utility.o
 
 clean:
-	rm -f *.o
+	rm -f sendfile recvfile routfile sender.o utility.o receiver.o router.o
