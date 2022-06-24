@@ -25,9 +25,11 @@ void flush(bool *alreadyReceived) {
 	}
 }
 
+
 int main(int argc, char* argv[]) {
 	char* fileName = "./data/output.txt";
 	unsigned int windowSize = 8;
+    int count = 0;
 	bufferSize = 256;
 	int port = 8001;
 	unsigned char buffer[bufferSize];
@@ -78,6 +80,7 @@ int main(int argc, char* argv[]) {
 		char * recvBuf = (char *) &paket;
 		if (recvfrom(udpSocket, recvBuf, sizeof(paket), 0, (struct sockaddr *) &serverAddr, &slen) >= 0) {
             cout<<"data re"<<endl;
+            count += 1;
             if (generateChecksumPaket(paket) == Checksum(paket)) {
 				if (SOH(paket) == 0x02) {
 					finish = 1;
@@ -102,7 +105,9 @@ int main(int argc, char* argv[]) {
 		Checksum(ack) = generateChecksumACK(ack);
 
 		char *sendBuf = (char *) &ack;
-		sendto(udpSocket, sendBuf, sizeof(ack), 0, (struct sockaddr*) &serverAddr, slen);
+        if (count % 10 != 2) {
+            sendto(udpSocket, sendBuf, sizeof(ack), 0, (struct sockaddr*) &serverAddr, slen);
+        }
         cout<< "ack se" <<endl;
 		if (counterBuffer == bufferSize) {
 			counterBufferOffset += bufferSize;
