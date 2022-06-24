@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	}
 	auto end_time = chrono::high_resolution_clock::now();
 	printf("All data has been received succesfully\n");
-	cout << "Time taken: " << chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count() << " milliseconds" << endl;
+	cout << "Time taken: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count() << " seconds" << endl;
 
 	fclose(file);
 }
