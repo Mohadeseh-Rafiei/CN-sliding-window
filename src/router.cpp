@@ -27,6 +27,10 @@ struct UdpConnectionInfo
     int client, server;
     vector<char *> *buffer;
     vector<char *> *client_buffer;
+    int *lastDataSent;
+    int *lastDataReceived;
+    int *lastAckReceived;
+    int *lastAckSent;
 };
 
 void die(char *s)
@@ -35,72 +39,119 @@ void die(char *s)
     exit(1);
 }
 
-// void* receive(void * void_args) {
-//     cout << "recieve" << endl;
+ void* receiveData(void * void_args) {
+     cout << "recieve Data" << endl;
 //     UdpConnectionInfo *args = (UdpConnectionInfo*)void_args;
-//
-//     int server = ((UdpConnectionInfo *) void_args)->server;
-//     int client = ((UdpConnectionInfo *) void_args)->client;
-//     sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
-//     sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
-//     sockaddr_in *serverAddr = ((UdpConnectionInfo *) void_args)->serverAddr;
-//     unsigned int client_slen = sizeof (serverAddr);
-//     unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
-//     vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
-//     vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
-//     int lastDataReceived = 0;
-//     int lastAckReceived = 0;
-//     cout << "vay" <<endl;
-//     srand(time(NULL));
-//     while(true){
-//         cout << "while r" << endl;
-//         char * recvBuf = (char *) &paket;
-//         if (recvfrom(client, recvBuf, sizeof(paket), 0, (struct sockaddr*) &serverAddr, &client_slen) >= 0) {
-//             cout << "---------------------------------" << endl;
-//             cout << lastDataReceived << endl;
-//             cout << recvBuf << endl;
-//             lastDataReceived += 1;
-//             client_buffer->push_back(recvBuf);
-//         }
-//         char* acksegment = (char *) &ack;
-//         if (recvfrom(server, acksegment, sizeof(ack), 0, (struct sockaddr*) &clientAddress, &server_slen) >= 0) {
-//             lastAckReceived += 1;
-//             buffer->push_back(acksegment);
-//         }
-//
-//     }
-// }
 
-// void* sent(void* void_args) {
-//     cout << "send" << endl;
-//
-//     int server = ((UdpConnectionInfo *) void_args)->server;
-//     int client = ((UdpConnectionInfo *) void_args)->client;
-//     unsigned int client_slen = ((UdpConnectionInfo *) void_args)->client_slen;
-//     sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
-//     sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
-//     unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
-//     vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
-//     vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
-//
-//     int lastDataSent = 0;
-//     int lastAckSent = 0;
-//
-//     while(true) {
-//         if(client_buffer->size()) {
-//             char* segment = client_buffer->at(lastDataSent);
-//             if (sendto(client, segment, sizeof(paket), 0, (struct sockaddr *) &clientAddress, client_slen) != -1) {
-//                 lastDataSent += 1;
-//             }
-//         }
-//         if(buffer->size()) {
-//             char *sendBuf = buffer->at(lastAckSent);
-//             if (sendto(server, sendBuf, sizeof(ack), 0, (struct sockaddr *) &clientAddr, server_slen) != -1) {
-//                 lastAckSent += 1;
-//             }
-//         }
-//     }
-// }
+     int server = ((UdpConnectionInfo *) void_args)->server;
+     int client = ((UdpConnectionInfo *) void_args)->client;
+     sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
+     sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
+     sockaddr_in *serverAddr = ((UdpConnectionInfo *) void_args)->serverAddr;
+     unsigned int client_slen = sizeof(*serverAddr);
+     unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
+     vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
+     vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
+//     int *lastDataReceived = ((UdpConnectionInfo *) void_args)->lastDataReceived;
+
+     cout << "vay" <<endl;
+     srand(time(NULL));
+     while(true){
+         cout << "while r" << endl;
+         char *recvBuf = (char *)&paket;
+//        if (abs(lastDataReceived - lastDataSent) <= 10)
+//        {
+         if (recvfrom(server, recvBuf, sizeof(paket), 0, (struct sockaddr *)&serverAddr, &client_slen) >= 0)
+         {
+             cout << "--------------------------------" << endl;
+             cout << "data rec" << endl;
+//             cout << *lastDataReceived << endl;
+             ((UdpConnectionInfo *) void_args)->lastDataReceived += 1;
+             client_buffer->push_back(recvBuf);
+         }
+//        }
+     }
+ }
+
+ void* sentData(void* void_args) {
+     cout << "send Data" << endl;
+
+     int server = ((UdpConnectionInfo *) void_args)->server;
+     int client = ((UdpConnectionInfo *) void_args)->client;
+     unsigned int client_slen = ((UdpConnectionInfo *) void_args)->client_slen;
+     sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
+     sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
+     unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
+     vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
+     vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
+
+     while(true) {
+         if (!client_buffer->empty())
+         {
+             char *segment = client_buffer->at(reinterpret_cast<unsigned long>(((UdpConnectionInfo *) void_args)->lastDataSent));
+             if (sendto(client, segment, sizeof(paket), 0, (struct sockaddr *)&clientAddress, client_slen) != -1)
+             {
+                 cout << "s data" << endl;
+                 ((UdpConnectionInfo *) void_args)->lastDataSent += 1;
+             }
+         }
+     }
+ }
+
+void* sentAck(void* void_args) {
+    cout << "send Ack" << endl;
+
+    int server = ((UdpConnectionInfo *) void_args)->server;
+    int client = ((UdpConnectionInfo *) void_args)->client;
+    unsigned int client_slen = ((UdpConnectionInfo *) void_args)->client_slen;
+    sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
+    sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
+    sockaddr_in *serverAddr = ((UdpConnectionInfo *) void_args)->serverAddr;
+    unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
+    vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
+    vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
+
+    while(true) {
+        if (!buffer->empty())
+        {
+            char *sendBuf = buffer->at(reinterpret_cast<unsigned long>(((UdpConnectionInfo *) void_args)->lastAckSent));
+            if (sendto(server, sendBuf, sizeof(ack), 0, (struct sockaddr *)&serverAddr, server_slen) != -1)
+            {
+                cout << "sand ack" << endl;
+                ((UdpConnectionInfo *) void_args)->lastAckSent += 1;
+            }
+        }
+    }
+}
+
+void* receiveAck(void * void_args) {
+    cout << "recieve  ack" << endl;
+//     UdpConnectionInfo *args = (UdpConnectionInfo*)void_args;
+
+    int server = ((UdpConnectionInfo *) void_args)->server;
+    int client = ((UdpConnectionInfo *) void_args)->client;
+    sockaddr_in *clientAddress = ((UdpConnectionInfo *) void_args)->clientAddress;
+    sockaddr_in *clientAddr = ((UdpConnectionInfo *) void_args)->clientAddr;
+    sockaddr_in *serverAddr = ((UdpConnectionInfo *) void_args)->serverAddr;
+    unsigned int client_slen = sizeof(*serverAddr);
+    unsigned int server_slen = ((UdpConnectionInfo *) void_args)->server_slen;
+    vector<char*> *buffer = ((UdpConnectionInfo *) void_args)->buffer;
+    vector<char*> *client_buffer = ((UdpConnectionInfo *) void_args)->client_buffer;
+//     int *lastDataReceived = ((UdpConnectionInfo *) void_args)->lastDataReceived;
+
+    cout << "vay" <<endl;
+    srand(time(nullptr));
+    while(true){
+        cout << "while r" << endl;
+        char *acksegment = (char *)&ack;
+        if (recvfrom(client, acksegment, sizeof(ack), 0, (struct sockaddr *)&clientAddress, &server_slen) >= 0)
+        {
+            cout << "r ack" << endl;
+            ((UdpConnectionInfo *) void_args)->lastAckReceived += 1;
+            buffer->push_back(acksegment);
+        }
+    }
+}
 
 void flush(bool *alreadyReceived)
 {
@@ -175,8 +226,10 @@ int main(int argc, char *argv[])
     cout << "-----------------------------------------------" << endl;
     fflush(stdout);
 
-    pthread_t receive_t;
-    pthread_t sent_t;
+    pthread_t receive_data_t;
+    pthread_t sent_data_t;
+    pthread_t send_ack_t;
+    pthread_t receive_ack_t;
 
     struct UdpConnectionInfo client_t;
     client_t.client_slen = sizeof(clientAddr);
@@ -193,54 +246,12 @@ int main(int argc, char *argv[])
 
     // cout << "wtf" << endl;
     // cout << serverSocket << endl;
-    //    pthread_create(&receive_t, NULL, receive, &client_t);
-    //    pthread_create(&sent_t, NULL, sent, (void *)&client_t);
-    int lastDataSent = 0;
-    int lastAckSent = 0;
-    int lastDataReceived = 0;
-    int lastAckReceived = 0;
-
-    while (true)
-    {
-        // cout << "while" <<endl;
-        char *recvBuf = (char *)&paket;
-        if (abs(lastDataReceived - lastDataSent) <= 10)
-        {
-            if (recvfrom(serverSocket, recvBuf, sizeof(paket), 0, (struct sockaddr *)&serverAddr, &client_t.client_slen) >= 0)
-            {
-                cout << "--------------------------------" << endl;
-                cout << "data rec" << endl;
-                cout << lastDataReceived << endl;
-                lastDataReceived += 1;
-                client_buffer.push_back(recvBuf);
-            }
-        }
-        char *acksegment = (char *)&ack;
-        if (recvfrom(clientSocket, acksegment, sizeof(ack), 0, (struct sockaddr *)&clientAddress, &client_t.server_slen) >= 0)
-        {
-            cout << "r ack" << endl;
-            lastAckReceived += 1;
-            buffer.push_back(acksegment);
-        }
-
-        if (client_buffer.size())
-        {
-            char *segment = client_buffer[lastDataSent];
-            if (sendto(clientSocket, segment, sizeof(paket), 0, (struct sockaddr *)&clientAddress, client_t.client_slen) != -1)
-            {
-                cout << "s data" << endl;
-                lastDataSent += 1;
-            }
-        }
-        if (buffer.size())
-        {
-            char *sendBuf = buffer[lastAckSent];
-            if (sendto(serverSocket, sendBuf, sizeof(ack), 0, (struct sockaddr *)&serverAddr, client_t.server_slen) != -1)
-            {
-                cout << "sand ack" << endl;
-                lastAckSent += 1;
-            }
-        }
+    pthread_create(&receive_data_t, nullptr, receiveData, &client_t);
+    pthread_create(&sent_data_t, nullptr, sentData, (void *)&client_t);
+    pthread_create(&receive_ack_t, nullptr, receiveAck, &client_t);
+    pthread_create(&send_ack_t, nullptr, sentAck, (void *)&client_t);
+    while(true) {
+        sleep(100);
     }
     return 0;
 }

@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         while (LFS(sendingWindow) < LAR(sendingWindow) + windowSize && LFS(sendingWindow) < counterBuffer + bufferSizeOffset && paramSend < advertisedWindowSize)
         {
             // cout << "sent while" << endl;
-            cout << buffer << endl;
+//            cout << buffer << endl;
             paket = CreateSegment(LFS(sendingWindow), buffer[LFS(sendingWindow) - bufferSizeOffset], 0);
             Checksum(paket) = generateChecksumPaket(paket);
             LFS(sendingWindow) = LFS(sendingWindow) + 1;

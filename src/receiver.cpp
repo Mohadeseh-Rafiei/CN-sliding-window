@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
 		die("socket");
 	}
 
-	// Urusan Timeout
 	struct timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 255000;
